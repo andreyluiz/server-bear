@@ -77,6 +77,9 @@ exports.updateUser = (req, res, next) ->
         return res.status(202).send user
 
 exports.deleteUser = (req, res, next) ->
+    Task.find { user_id: req.params._id }, (err, tasks) ->
+        if tasks.length > 0
+            return res.status(400).send {message: 'There are tasks related to this user. It cannot be removed.'}
     User.findOne { _id: req.params._id }, (err, user) ->
         return res.status(500).send {message: 'An internal error has occured'} if err
         return res.status(404).send {message: 'User not found'} if not user
