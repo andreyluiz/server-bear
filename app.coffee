@@ -4,6 +4,7 @@ bodyParser = require 'body-parser'
 
 app = express()
 
+app.use express.Router()
 app.use bodyParser.json()
 app.set('port', (process.env.PORT || 3000))
 

@@ -13,27 +13,22 @@ exports.listTasks = (req, res, next) ->
         return res.status(200).send data
 
 exports.addTask = (req, res, next) ->
-    console.log 'entrou'
     contentType = req.headers['content-type']
     if not contentType || contentType != 'application/json'
         return res.status(400).send {message: 'Cannot add without content-type header'}
-    console.log req.body
     task = req.body
     id = mongoose.Types.ObjectId(task.user_id)
-    console.log id
-    task.user_id = id
-    User.find {_id: task.user_id }, (err, user) ->
-        console.log task.user_id
-        console.log 'entrou no find'
+    User.find {_id: id }, (err, user) ->
         return res.status(500).send {message: 'An internal error has occured'} if err
         return res.status(404).send {message: 'Related user not found'} if not user
-        newTask = new Task req.body
+        task.user_id = id
+        newTask = new Task task
         newTask.save (err) ->
             return res.status(500).send {message: 'An internal error has occured'} if err
             return res.status(201).send {location: "/tasks/" + newTask._id}
 
 exports.findTask = (req, res) ->
-    return Task.find { _id: req.params._id }, (err, task) ->
+    return Task.findOne { _id: req.params._id }, (err, task) ->
         return res.status(500).send {message: 'An internal error has occured'} if err
         return res.status(200).send task
 
